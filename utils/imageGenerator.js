@@ -1,12 +1,16 @@
 const ImageGenerator = {
-  API_KEY: 'sk-wxfsotjcavldkdcgavgjjswbfzuilfrxzazleqxujjkytevx',
+  // 获取配置
+  getConfig() {
+    return EnvConfig.getConfig();
+  },
   
   async generatePrompt(surface) {
     try {
-      const response = await fetch('https://proxy-api.trickle-app.host/?url=https://api.siliconflow.cn/v1/chat/completions', {
+      const config = this.getConfig();
+      const response = await fetch(`${config.SILICONFLOW_PROXY_URL}/v1/chat/completions`, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${ImageGenerator.API_KEY}`,
+          'Authorization': `Bearer ${config.SILICONFLOW_API_KEY}`,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
@@ -34,10 +38,11 @@ const ImageGenerator = {
   
   async generateImage(prompt) {
     try {
-      const response = await fetch('https://proxy-api.trickle-app.host/?url=https://api.siliconflow.cn/v1/images/generations', {
+      const config = this.getConfig();
+      const response = await fetch(`${config.SILICONFLOW_PROXY_URL}/v1/images/generations`, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${ImageGenerator.API_KEY}`,
+          'Authorization': `Bearer ${config.SILICONFLOW_API_KEY}`,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
