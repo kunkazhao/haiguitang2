@@ -1,0 +1,11 @@
+# Exclude local dev helpers and secrets from Vercel uploads
+.tools/
+run.ps1
+run.bat
+.env
+.env.*
+.git/
+
+# Local-only HTTP server for development
+server.js
+

@@ -37,3 +37,16 @@
 - `utils/envConfig.js` has defaults for development; override via `.env`/environment. Replace placeholder API keys before enabling image generation.
 - Avoid introducing server‑side state; this site is a static app served by `server.js`.
 
+## Vercel 部署（自动化）
+- 已新增 `vercel.json`（静态站点配置、禁用缓存）与 `.vercelignore`（忽略本地开发工具和密钥，例如 `.env`、`.tools/`、`server.js`）。
+- 推荐使用 Vercel 的 Git 集成：
+  - 将该仓库推送至 GitHub（默认分支 `main`）。
+  - 在 Vercel 控制台 Import Project → 选择该仓库。
+  - Framework 选择 “Other”，Build Command 留空（无需构建），Output Directory 选择 `.`（根目录）。
+  - 环境变量（可选）：按需在 Vercel → Settings → Environment Variables 中配置 `SILICONFLOW_API_KEY`、`SILICONFLOW_PROXY_URL`。
+  - 绑定后：
+    - 对 `main` 的每次 push → 触发 Production 部署。
+    - Pull Request/其它分支 → 触发 Preview 部署。
+- 如需关闭自动部署或限定分支：Vercel → Project Settings → Git 中调整。
+
+说明：项目是纯静态资源，Vercel 直接托管根目录文件。`server.js` 仅用于本地开发，已通过 `.vercelignore` 排除，不会参与线上运行。
