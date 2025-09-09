@@ -26,14 +26,16 @@ class ErrorBoundary extends React.Component {
 function RiddleDetail() {
   try {
     const [riddle, setRiddle] = React.useState(null);
+    const [isLoading, setIsLoading] = React.useState(true);
     const [showAnswer, setShowAnswer] = React.useState(false);
     const [copyMessage, setCopyMessage] = React.useState('');
 
     React.useEffect(() => {
       (async () => {
+        setIsLoading(true);
         const urlParams = new URLSearchParams(window.location.search);
         const riddleId = urlParams.get('id');
-        if (!riddleId) return;
+        if (!riddleId) { setIsLoading(false); return; }
 
         // 优先云端
         if (window.SupabaseUtil && SupabaseUtil.isConfigured()) {
@@ -51,6 +53,7 @@ function RiddleDetail() {
                 bottomImage: data.bottom_image || '',
                 coverImage: data.cover_image || ''
               });
+              setIsLoading(false);
               return;
             }
           } catch (e) {
@@ -61,6 +64,7 @@ function RiddleDetail() {
         // 回退本地
         const foundRiddle = StorageUtil.getRiddleById(riddleId);
         setRiddle(foundRiddle);
+        setIsLoading(false);
       })();
     }, []);
 
@@ -86,6 +90,17 @@ function RiddleDetail() {
       const fullText = `${surfacePart}\n\n答案：${bottomPart}`.trim();
       copyToClipboard(fullText, '完整内容');
     };
+
+    if (isLoading) {
+      return (
+        <div className="min-h-screen bg-[var(--background-dark)]">
+          <Header />
+          <div className="container mx-auto px-4 py-8">
+            <Loading full text="加载题目详情中..." />
+          </div>
+        </div>
+      );
+    }
 
     if (!riddle) {
       return (
@@ -116,7 +131,7 @@ function RiddleDetail() {
             <div className="card-dark p-8">
               {riddle.coverImage && riddle.coverImage.trim() !== '' && (
                 <div className="mb-6 rounded-lg overflow-hidden">
-                  <img src={riddle.coverImage} alt={riddle.title} className="w-full h-64 object-cover" onError={(e)=>{e.target.style.display='none';}} />
+                  <img src={riddle.coverImage} alt={riddle.title} className="w-full h-48 object-cover" onError={(e)=>{e.target.style.display='none';}} />
                 </div>
               )}
 

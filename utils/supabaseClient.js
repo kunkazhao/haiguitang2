@@ -95,6 +95,47 @@ const SupabaseUtil = {
     }
   },
 
+  // 更新题目
+  async updateRiddle(id, updates) {
+    const c = this.client();
+    if (!c) return { data: null, error: new Error('Supabase 未配置') };
+    try {
+      const { data, error } = await c
+        .from('riddles')
+        .update(updates)
+        .eq('id', id)
+        .select()
+        .single();
+      return { data, error };
+    } catch (e) {
+      return { data: null, error: e };
+    }
+  },
+
+  // 删除题目
+  async deleteRiddle(id) {
+    const c = this.client();
+    if (!c) return { error: new Error('Supabase 未配置') };
+    try {
+      const { error } = await c.from('riddles').delete().eq('id', id);
+      return { error };
+    } catch (e) {
+      return { error: e };
+    }
+  },
+
+  // 清空所有题目（谨慎使用）
+  async deleteAllRiddles() {
+    const c = this.client();
+    if (!c) return { error: new Error('Supabase 未配置') };
+    try {
+      const { error } = await c.from('riddles').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+      return { error };
+    } catch (e) {
+      return { error: e };
+    }
+  },
+
   // 查询列表
   async fetchRiddles() {
     const c = this.client();
@@ -126,4 +167,3 @@ const SupabaseUtil = {
     }
   }
 };
-

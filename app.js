@@ -37,17 +37,19 @@ class ErrorBoundary extends React.Component {
 function App() {
   try {
     const [riddles, setRiddles] = React.useState([]);
+    const [isLoading, setIsLoading] = React.useState(true);
     const [searchTerm, setSearchTerm] = React.useState('');
     const [selectedTypes, setSelectedTypes] = React.useState([]);
     const [selectedDifficulties, setSelectedDifficulties] = React.useState([]);
 
     React.useEffect(() => {
       (async () => {
+        setIsLoading(true);
         // 优先读取云端
         if (window.SupabaseUtil && SupabaseUtil.isConfigured()) {
           try {
             const { data, error } = await SupabaseUtil.fetchRiddles();
-            if (!error && Array.isArray(data) && data.length > 0) {
+            if (!error && Array.isArray(data)) {
               // 将字段映射为前端展示结构（保持组件兼容）
               const mapped = data.map(r => ({
                 id: r.id,
@@ -61,7 +63,10 @@ function App() {
                 coverImage: r.cover_image || '',
                 updatedAt: r.created_at || new Date().toISOString()
               }));
+              // 按时间倒序，最新在前
+              mapped.sort((a,b) => new Date(b.updatedAt) - new Date(a.updatedAt));
               setRiddles(mapped);
+              setIsLoading(false);
               return;
             }
           } catch (e) {
@@ -73,11 +78,14 @@ function App() {
         const stored = StorageUtil.getRiddles();
         if (stored.length === 0) {
           const initialData = getSampleRiddles();
-          StorageUtil.saveRiddles(initialData);
-          setRiddles(initialData);
+          const sorted = [...initialData].sort((a,b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+          StorageUtil.saveRiddles(sorted);
+          setRiddles(sorted);
         } else {
-          setRiddles(stored);
+          const sorted = [...stored].sort((a,b) => new Date(b.updatedAt || 0) - new Date(a.updatedAt || 0));
+          setRiddles(sorted);
         }
+        setIsLoading(false);
       })();
     }, []);
 
@@ -114,10 +122,14 @@ function App() {
           <div className="max-w-6xl mx-auto">
             <SearchBar onSearch={handleSearch} />
             <FilterPanel onFilterChange={handleFilterChange} />
-            <RiddleList 
-              riddles={filteredRiddles} 
-              onRiddleClick={handleRiddleClick}
-            />
+            {isLoading ? (
+              <Loading text="加载题目中..." />
+            ) : (
+              <RiddleList 
+                riddles={filteredRiddles} 
+                onRiddleClick={handleRiddleClick}
+              />
+            )}
           </div>
         </div>
         <Footer />
