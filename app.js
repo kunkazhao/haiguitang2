@@ -91,6 +91,7 @@ function App() {
             />
           </div>
         </div>
+        <Footer />
       </div>
     );
   } catch (error) {

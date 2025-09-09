@@ -239,6 +239,7 @@ function AddRiddle() {
             </div>
           </div>
         </div>
+        <Footer />
       </div>
     );
   } catch (error) {

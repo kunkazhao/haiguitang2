@@ -159,6 +159,7 @@ function RiddleDetail() {
             </div>
           </div>
         </div>
+        <Footer />
       </div>
     );
   } catch (error) {

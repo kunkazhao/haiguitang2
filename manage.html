@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>题库管理 - 海龟汤题库</title>
+  <meta name="description" content="管理海龟汤题库，支持增删改查">
+  <meta name="keywords" content="海龟汤, 题库管理, 海龟汤管理">
+
+  <script src="https://resource.trickle.so/vendor_lib/unpkg/react@18/umd/react.production.min.js"></script>
+  <script src="https://resource.trickle.so/vendor_lib/unpkg/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://resource.trickle.so/vendor_lib/unpkg/@babel/standalone/babel.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://resource.trickle.so/vendor_lib/unpkg/lucide-static@0.516.0/font/lucide.css" rel="stylesheet">
+
+  <style type="text/tailwindcss">
+  @layer theme {
+    :root {
+      --primary-color: #8b5cf6;
+      --secondary-color: #1f2937;
+      --accent-color: #06b6d4;
+      --background-dark: #0f172a;
+      --surface-dark: #1e293b;
+      --text-primary: #f8fafc;
+      --text-secondary: #cbd5e1;
+      --border-color: #334155;
+    }
+  }
+
+  @layer base {
+    body { background-color: var(--background-dark); color: var(--text-primary); }
+  }
+
+  @layer components {
+    .card-dark {
+      background-color: var(--surface-dark);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+    }
+    .btn-primary { background-color: var(--primary-color); color: white; padding: 0.75rem 1.5rem; border-radius: 8px; font-weight: 500; transition: all 0.2s ease; }
+    .btn-primary:hover { background-color: #7c3aed; transform: translateY(-1px); }
+    .btn-secondary { background-color: var(--surface-dark); color: var(--text-primary); border: 1px solid var(--border-color); padding: 0.5rem 1rem; border-radius: 8px; font-weight: 500; transition: all 0.2s ease; }
+    .btn-secondary:hover { background-color: var(--secondary-color); border-color: var(--primary-color); }
+    .form-input { background-color: var(--surface-dark); border: 1px solid var(--border-color); color: var(--text-primary); padding: 0.6rem 0.9rem; border-radius: 8px; width: 100%; }
+    .form-input:focus { outline: none; border-color: var(--primary-color); box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1); }
+    .form-textarea { background-color: var(--surface-dark); border: 1px solid var(--border-color); color: var(--text-primary); padding: 0.6rem 0.9rem; border-radius: 8px; width: 100%; min-height: 100px; resize: vertical; }
+    .form-textarea:focus { outline: none; border-color: var(--primary-color); box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1); }
+    .form-select { background-color: var(--surface-dark); border: 1px solid var(--border-color); color: var(--text-primary); padding: 0.6rem 0.9rem; border-radius: 8px; width: 100%; }
+    .form-select:focus { outline: none; border-color: var(--primary-color); box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1); }
+  }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel" src="components/Header.js"></script>
+  <script type="text/babel" src="components/Footer.js"></script>
+  <script type="text/babel" src="utils/envConfig.js"></script>
+  <script type="text/babel" src="utils/storage.js"></script>
+  <script type="text/babel" src="data/sampleData.js"></script>
+  <script type="text/babel" src="manage-app.js"></script>
+</body>
+</html>
