@@ -16,6 +16,8 @@
     <script src="https://resource.trickle.so/vendor_lib/unpkg/@babel/standalone/babel.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://resource.trickle.so/vendor_lib/unpkg/lucide-static@0.516.0/font/lucide.css" rel="stylesheet">
+    <!-- Supabase UMD -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 
     <style type="text/tailwindcss">
     @layer theme {
@@ -99,7 +101,10 @@
     <div id="root"></div>
     <script type="text/babel" src="components/Header.js"></script>
     <script type="text/babel" src="components/Footer.js"></script>
+    <!-- 可选：前端公开配置（如果存在） -->
+    <script src="config/public-env.js"></script>
     <script type="text/babel" src="utils/envConfig.js"></script>
+    <script type="text/babel" src="utils/supabaseClient.js"></script>
     <script type="text/babel" src="utils/storage.js"></script>
     <script type="text/babel" src="riddle-app.js"></script>
 </body>

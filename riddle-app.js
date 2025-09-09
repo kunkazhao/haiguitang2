@@ -4,13 +4,8 @@ class ErrorBoundary extends React.Component {
     this.state = { hasError: false, error: null };
   }
 
-  static getDerivedStateFromError(error) {
-    return { hasError: true, error };
-  }
-
-  componentDidCatch(error, errorInfo) {
-    console.error('ErrorBoundary caught an error:', error, errorInfo.componentStack);
-  }
+  static getDerivedStateFromError(error) { return { hasError: true, error }; }
+  componentDidCatch(error, errorInfo) { console.error('ErrorBoundary caught an error:', error, errorInfo?.componentStack); }
 
   render() {
     if (this.state.hasError) {
@@ -19,9 +14,7 @@ class ErrorBoundary extends React.Component {
           <div className="text-center">
             <h1 className="text-2xl font-bold text-[var(--text-primary)] mb-4">出现了一些问题</h1>
             <p className="text-[var(--text-secondary)] mb-4">抱歉，发生了意外错误</p>
-            <button onClick={() => window.location.reload()} className="btn-primary">
-              重新加载
-            </button>
+            <button onClick={() => window.location.reload()} className="btn-primary">重新加载</button>
           </div>
         </div>
       );
@@ -37,13 +30,38 @@ function RiddleDetail() {
     const [copyMessage, setCopyMessage] = React.useState('');
 
     React.useEffect(() => {
-      const urlParams = new URLSearchParams(window.location.search);
-      const riddleId = urlParams.get('id');
-      
-      if (riddleId) {
+      (async () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const riddleId = urlParams.get('id');
+        if (!riddleId) return;
+
+        // 优先云端
+        if (window.SupabaseUtil && SupabaseUtil.isConfigured()) {
+          try {
+            const { data, error } = await SupabaseUtil.fetchRiddleById(riddleId);
+            if (!error && data) {
+              setRiddle({
+                id: data.id,
+                title: data.title,
+                surface: data.surface || '',
+                bottom: data.bottom || '',
+                type: data.type || '本格',
+                difficulty: data.difficulty || '中等',
+                surfaceImage: data.surface_image || '',
+                bottomImage: data.bottom_image || '',
+                coverImage: data.cover_image || ''
+              });
+              return;
+            }
+          } catch (e) {
+            console.warn('云端读取失败，回退本地：', e);
+          }
+        }
+
+        // 回退本地
         const foundRiddle = StorageUtil.getRiddleById(riddleId);
         setRiddle(foundRiddle);
-      }
+      })();
     }, []);
 
     const copyToClipboard = async (text, label) => {
@@ -58,11 +76,14 @@ function RiddleDetail() {
     };
 
     const handleCopySurface = () => {
-      copyToClipboard(riddle.surface, '汤面');
+      const content = (riddle.surface && riddle.surface.trim()) ? riddle.surface : (riddle.surfaceImage || '');
+      copyToClipboard(content, '汤面');
     };
 
     const handleCopyAll = () => {
-      const fullText = `${riddle.surface}\n\n答案：${riddle.bottom}`;
+      const surfacePart = (riddle.surface && riddle.surface.trim()) ? riddle.surface : (riddle.surfaceImage ? `[图片] ${riddle.surfaceImage}` : '');
+      const bottomPart = (riddle.bottom && riddle.bottom.trim()) ? riddle.bottom : (riddle.bottomImage ? `[图片] ${riddle.bottomImage}` : '');
+      const fullText = `${surfacePart}\n\n答案：${bottomPart}`.trim();
       copyToClipboard(fullText, '完整内容');
     };
 
@@ -95,14 +116,7 @@ function RiddleDetail() {
             <div className="card-dark p-8">
               {riddle.coverImage && riddle.coverImage.trim() !== '' && (
                 <div className="mb-6 rounded-lg overflow-hidden">
-                  <img 
-                    src={riddle.coverImage} 
-                    alt={riddle.title} 
-                    className="w-full h-64 object-cover"
-                    onError={(e) => {
-                      e.target.style.display = 'none';
-                    }}
-                  />
+                  <img src={riddle.coverImage} alt={riddle.title} className="w-full h-64 object-cover" onError={(e)=>{e.target.style.display='none';}} />
                 </div>
               )}
 
@@ -116,26 +130,33 @@ function RiddleDetail() {
 
               <div className="mb-8">
                 <h2 className="text-xl font-semibold text-[var(--text-primary)] mb-4">汤面</h2>
-                <div className="bg-[var(--background-dark)] p-6 rounded-lg border border-[var(--border-color)]">
-                  <p className="text-[var(--text-primary)] leading-relaxed text-lg">{riddle.surface}</p>
+                <div className="bg-[var(--background-dark)] p-6 rounded-lg border border-[var(--border-color)] space-y-4">
+                  {riddle.surfaceImage && riddle.surfaceImage.trim() !== '' && (
+                    <img src={riddle.surfaceImage} alt="汤面图片" className="w-full max-h-[480px] object-contain rounded" onError={(e)=>{e.target.style.display='none';}} />
+                  )}
+                  {riddle.surface && riddle.surface.trim() !== '' && (
+                    <p className="text-[var(--text-primary)] leading-relaxed text-lg">{riddle.surface}</p>
+                  )}
                 </div>
               </div>
 
               <div className="mb-8">
                 <div className="flex items-center justify-between mb-4">
                   <h2 className="text-xl font-semibold text-[var(--text-primary)]">汤底</h2>
-                  <button
-                    onClick={() => setShowAnswer(!showAnswer)}
-                    className={showAnswer ? 'btn-secondary' : 'btn-primary'}
-                  >
+                  <button onClick={() => setShowAnswer(!showAnswer)} className={showAnswer ? 'btn-secondary' : 'btn-primary'}>
                     <div className={`${showAnswer ? 'icon-eye-off' : 'icon-eye'} text-sm mr-2 inline-block`}></div>
                     {showAnswer ? '隐藏答案' : '显示答案'}
                   </button>
                 </div>
-                
+
                 {showAnswer && (
-                  <div className="bg-[var(--background-dark)] p-6 rounded-lg border border-[var(--border-color)]">
-                    <p className="text-[var(--text-primary)] leading-relaxed text-lg">{riddle.bottom}</p>
+                  <div className="bg-[var(--background-dark)] p-6 rounded-lg border border-[var(--border-color)] space-y-4">
+                    {riddle.bottomImage && riddle.bottomImage.trim() !== '' && (
+                      <img src={riddle.bottomImage} alt="汤底图片" className="w-full max-h-[480px] object-contain rounded" onError={(e)=>{e.target.style.display='none';}} />
+                    )}
+                    {riddle.bottom && riddle.bottom.trim() !== '' && (
+                      <p className="text-[var(--text-primary)] leading-relaxed text-lg">{riddle.bottom}</p>
+                    )}
                   </div>
                 )}
               </div>
@@ -152,9 +173,7 @@ function RiddleDetail() {
               </div>
 
               {copyMessage && (
-                <div className="mt-4 p-3 bg-green-600 text-white rounded-lg">
-                  {copyMessage}
-                </div>
+                <div className="mt-4 p-3 bg-green-600 text-white rounded-lg">{copyMessage}</div>
               )}
             </div>
           </div>

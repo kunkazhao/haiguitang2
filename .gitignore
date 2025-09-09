@@ -25,3 +25,9 @@ Thumbs.db
 # 构建产物
 dist/
 build/
+ 
+# 前端公开配置（本地自定义）
+config/public-env.js
+
+# 临时调试/说明文档
+tmp_*

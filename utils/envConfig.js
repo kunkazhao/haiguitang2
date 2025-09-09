@@ -6,7 +6,11 @@ const EnvConfig = {
     // 在开发环境中，我们提供默认值
     return {
       SILICONFLOW_API_KEY: this.getEnvVar('SILICONFLOW_API_KEY', 'sk-wxfsotjcavldkdcgavgjjswbfzuilfrxzazleqxujjkytevx'),
-      SILICONFLOW_PROXY_URL: this.getEnvVar('SILICONFLOW_PROXY_URL', 'https://proxy-api.trickle-app.host/?url=https://api.siliconflow.cn')
+      SILICONFLOW_PROXY_URL: this.getEnvVar('SILICONFLOW_PROXY_URL', 'https://proxy-api.trickle-app.host/?url=https://api.siliconflow.cn'),
+      // Supabase（仅前端 anon key）
+      SUPABASE_URL: this.getEnvVar('SUPABASE_URL', ''),
+      SUPABASE_ANON_KEY: this.getEnvVar('SUPABASE_ANON_KEY', ''),
+      SUPABASE_BUCKET: this.getEnvVar('SUPABASE_BUCKET', 'riddles')
     };
   },
 

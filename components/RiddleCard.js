@@ -27,7 +27,7 @@ function RiddleCard({ riddle, onClick }) {
         </div>
         
         <p className="text-[var(--text-secondary)] mb-4 line-clamp-3">
-          {riddle.surface}
+          {riddle.surface && riddle.surface.trim() !== '' ? riddle.surface : (riddle.surfaceImage ? '【图片题】点击查看详情' : '')}
         </p>
         
         <div className="flex items-center justify-between">

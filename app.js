@@ -42,14 +42,43 @@ function App() {
     const [selectedDifficulties, setSelectedDifficulties] = React.useState([]);
 
     React.useEffect(() => {
-      const storedRiddles = StorageUtil.getRiddles();
-      if (storedRiddles.length === 0) {
-        const initialData = getSampleRiddles();
-        StorageUtil.saveRiddles(initialData);
-        setRiddles(initialData);
-      } else {
-        setRiddles(storedRiddles);
-      }
+      (async () => {
+        // 优先读取云端
+        if (window.SupabaseUtil && SupabaseUtil.isConfigured()) {
+          try {
+            const { data, error } = await SupabaseUtil.fetchRiddles();
+            if (!error && Array.isArray(data) && data.length > 0) {
+              // 将字段映射为前端展示结构（保持组件兼容）
+              const mapped = data.map(r => ({
+                id: r.id,
+                title: r.title,
+                surface: r.surface || '',
+                bottom: r.bottom || '',
+                type: r.type || '本格',
+                difficulty: r.difficulty || '中等',
+                surfaceImage: r.surface_image || '',
+                bottomImage: r.bottom_image || '',
+                coverImage: r.cover_image || '',
+                updatedAt: r.created_at || new Date().toISOString()
+              }));
+              setRiddles(mapped);
+              return;
+            }
+          } catch (e) {
+            console.warn('读取云端失败，回退到本地：', e);
+          }
+        }
+
+        // 本地回退：localStorage 没有则用样例数据
+        const stored = StorageUtil.getRiddles();
+        if (stored.length === 0) {
+          const initialData = getSampleRiddles();
+          StorageUtil.saveRiddles(initialData);
+          setRiddles(initialData);
+        } else {
+          setRiddles(stored);
+        }
+      })();
     }, []);
 
     const filteredRiddles = React.useMemo(() => {
