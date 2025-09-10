@@ -7,21 +7,21 @@ function RiddleCard({ riddle, onClick }) {
         data-name="riddle-card" 
         data-file="components/RiddleCard.js"
       >
-        <div className="mb-4 rounded-lg overflow-hidden">
+        <div className="mb-4 rounded-lg overflow-hidden relative" style={{paddingTop:'66.666%'}}>
           {riddle.coverImage && riddle.coverImage.trim() !== '' ? (
             <img 
               src={riddle.coverImage} 
               alt={riddle.title}
-              className="w-full h-48 object-cover"
+              className="absolute inset-0 w-full h-full object-cover"
               onError={(e) => {
                 e.target.style.display = 'none';
                 const fallback = e.target.nextElementSibling;
-                if (fallback) fallback.style.display = 'block';
+                if (fallback) fallback.style.display = 'flex';
               }}
             />
           ) : null}
           {/* 占位图（无封面或加载失败时） */}
-          <div className="w-full h-48 bg-gradient-to-br from-slate-700 to-slate-800 flex items-center justify-center" style={{display: (riddle.coverImage && riddle.coverImage.trim() !== '') ? 'none' : 'flex'}}>
+          <div className="absolute inset-0 bg-gradient-to-br from-slate-700 to-slate-800 hidden items-center justify-center" style={{display: (riddle.coverImage && riddle.coverImage.trim() !== '') ? 'none' : 'flex'}}>
             <div className="icon-image text-2xl text-slate-300"></div>
           </div>
         </div>

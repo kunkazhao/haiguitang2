@@ -129,11 +129,15 @@ function RiddleDetail() {
             </div>
 
             <div className="card-dark p-8">
-              {riddle.coverImage && riddle.coverImage.trim() !== '' && (
-                <div className="mb-6 rounded-lg overflow-hidden">
-                  <img src={riddle.coverImage} alt={riddle.title} className="w-full h-48 object-cover" onError={(e)=>{e.target.style.display='none';}} />
-                </div>
-              )}
+              <div className="mb-6 rounded-lg overflow-hidden relative" style={{paddingTop:'66.666%'}}>
+                {riddle.coverImage && riddle.coverImage.trim() !== '' ? (
+                  <img src={riddle.coverImage} alt={riddle.title} className="absolute inset-0 w-full h-full object-cover" onError={(e)=>{e.target.style.display='none';}} />
+                ) : (
+                  <div className="absolute inset-0 bg-gradient-to-br from-slate-700 to-slate-800 flex items-center justify-center">
+                    <div className="icon-image text-2xl text-slate-300"></div>
+                  </div>
+                )}
+              </div>
 
               <div className="mb-6">
                 <h1 className="text-3xl font-bold text-[var(--text-primary)] mb-4">{riddle.title}</h1>
