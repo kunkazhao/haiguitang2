@@ -26,6 +26,8 @@ function ManageRiddles() {
     const isCloud = Boolean(window.SupabaseUtil && SupabaseUtil.isConfigured());
     const [riddles, setRiddles] = React.useState([]);
     const [isLoading, setIsLoading] = React.useState(true);
+    const [isBulkGenerating, setIsBulkGenerating] = React.useState(false);
+    const [generatingId, setGeneratingId] = React.useState('');
     const [search, setSearch] = React.useState('');
     const [editingId, setEditingId] = React.useState(null);
     const [form, setForm] = React.useState({ title: '', surface: '', bottom: '', type: '本格', difficulty: '中等' });
@@ -45,6 +47,7 @@ function ManageRiddles() {
       bottom: r.bottom || '',
       type: r.type || '本格',
       difficulty: r.difficulty || '中等',
+      coverImage: r.cover_image || '',
       updatedAt: r.created_at || new Date().toISOString()
     }));
 
@@ -159,6 +162,60 @@ function ManageRiddles() {
       }
     };
 
+    // 生成指定题目的封面（仅文字生成）
+    const generateCoverFor = async (r) => {
+      if (!r || !r.surface || !r.surface.trim()) { showMessage('该题目缺少汤面文本', 'error'); return; }
+      setGeneratingId(r.id);
+      try {
+        const url = await ImageGenerator.generateCoverImage(r.surface.trim());
+        if (!url) { showMessage('生成失败，请稍后重试', 'error'); return; }
+        if (isCloud) {
+          const { error } = await SupabaseUtil.updateRiddle(r.id, { cover_image: url });
+          if (error) { showMessage('保存封面失败（云端）', 'error'); return; }
+        } else {
+          const ok = StorageUtil.updateRiddle(r.id, { coverImage: url });
+          if (!ok) { showMessage('保存封面失败（本地）', 'error'); return; }
+        }
+        // 本地状态更新（避免整页刷新）
+        setRiddles(prev => prev.map(it => it.id === r.id ? { ...it, coverImage: url } : it));
+        showMessage('封面已生成', 'success');
+      } catch (e) {
+        console.error('generateCoverFor error:', e);
+        showMessage('生成失败', 'error');
+      } finally {
+        setGeneratingId('');
+      }
+    };
+
+    // 批量为缺失封面的题目生成封面
+    const generateMissingCovers = async () => {
+      const targets = riddles.filter(r => !r.coverImage || String(r.coverImage).trim() === '');
+      if (targets.length === 0) { showMessage('没有需要补充封面的题目', 'info'); return; }
+      if (!confirm(`将为 ${targets.length} 条题目生成封面，可能需要较长时间，是否继续？`)) return;
+      setIsBulkGenerating(true);
+      try {
+        for (const r of targets) {
+          const url = await ImageGenerator.generateCoverImage((r.surface||'').trim());
+          if (!url) continue;
+          if (isCloud) {
+            const { error } = await SupabaseUtil.updateRiddle(r.id, { cover_image: url });
+            if (error) continue;
+          } else {
+            const ok = StorageUtil.updateRiddle(r.id, { coverImage: url });
+            if (!ok) continue;
+          }
+          // 局部更新
+          setRiddles(prev => prev.map(it => it.id === r.id ? { ...it, coverImage: url } : it));
+        }
+        showMessage('批量生成完成', 'success');
+      } catch (e) {
+        console.error('generateMissingCovers error:', e);
+        showMessage('批量生成出错，请重试', 'error');
+      } finally {
+        setIsBulkGenerating(false);
+      }
+    };
+
     return (
       <div className="min-h-screen bg-[var(--background-dark)]" data-name="manage" data-file="manage-app.js">
         <Header />
@@ -169,6 +226,7 @@ function ManageRiddles() {
               <div className="flex gap-3 w-full md:w-auto">
                 <input className="form-input flex-1 md:w-80" placeholder="搜索标题 / 类型 / 难度..." value={search} onChange={(e)=>setSearch(e.target.value)} />
                 <a href="add-riddle.html" className="btn-primary whitespace-nowrap">新建题目</a>
+                <button className="btn-secondary whitespace-nowrap" onClick={generateMissingCovers} disabled={isLoading || isBulkGenerating}>{isBulkGenerating ? '生成中...' : '生成缺失封面'}</button>
                 <button className="btn-secondary whitespace-nowrap" onClick={clearAll}>清空题库</button>
               </div>
             </div>
@@ -237,6 +295,7 @@ function ManageRiddles() {
                         <div className="flex gap-2">
                           <a href={`riddle.html?id=${r.id}`} className="btn-secondary">查看</a>
                           <button className="btn-secondary" onClick={()=>startEdit(r)}>编辑</button>
+                          <button className="btn-secondary" onClick={()=>generateCoverFor(r)} disabled={generatingId===r.id}>{generatingId===r.id ? '生成中...' : '生成封面'}</button>
                           <button className="btn-secondary" onClick={()=>deleteOne(r.id)}>删除</button>
                         </div>
                       </div>
@@ -266,4 +325,3 @@ root.render(
     <ManageRiddles />
   </ErrorBoundary>
 );
-
