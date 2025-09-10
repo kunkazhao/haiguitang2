@@ -57,7 +57,7 @@ function RiddleDetail() {
               return;
             }
           } catch (e) {
-            console.warn('浜戠璇诲彇澶辫触锛屽洖閫€鏈湴锛?, e);
+            console.warn('云端读取失败，回退到本地：', e);
           }
         }
 
@@ -109,7 +109,7 @@ function RiddleDetail() {
           <div className="container mx-auto px-4 py-8">
             <div className="text-center">
               <h2 className="text-2xl font-bold text-[var(--text-primary)] mb-4">棰樼洰鏈壘鍒?/h2>
-              <a href=\"/\" className="btn-primary">杩斿洖棣栭〉</a>
+              <a href="/" className="btn-primary">杩斿洖棣栭〉</a>
             </div>
           </div>
         </div>
@@ -122,7 +122,7 @@ function RiddleDetail() {
         <div className="container mx-auto px-4 py-8">
           <div className="max-w-4xl mx-auto">
             <div className="mb-6">
-              <a href=\"/\" className="text-[var(--primary-color)] hover:underline flex items-center">
+              <a href="/" className="text-[var(--primary-color)] hover:underline flex items-center">
                 <div className="icon-arrow-left text-sm mr-2"></div>
                 杩斿洖棰樺簱
               </a>
@@ -212,4 +212,6 @@ root.render(
     <RiddleDetail />
   </ErrorBoundary>
 );
+
+
 
