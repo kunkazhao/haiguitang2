@@ -148,19 +148,7 @@ function ManageRiddles() {
       }
     };
 
-    const clearAll = async () => {
-      if (!confirm('确定清空全部题目吗？此操作不可撤销')) return;
-      if (isCloud) {
-        const { error } = await SupabaseUtil.deleteAllRiddles();
-        if (error) { showMessage('清空失败：云端错误', 'error'); return; }
-        showMessage('题库已清空', 'success');
-        await refresh();
-      } else {
-        StorageUtil.saveRiddles([]);
-        setRiddles([]);
-        showMessage('题库已清空', 'success');
-      }
-    };
+    // 已移除清空题库功能（避免误操作）
 
     // 生成指定题目的封面（仅文字生成）
     const generateCoverFor = async (r) => {
@@ -189,7 +177,16 @@ function ManageRiddles() {
 
     // 批量为缺失封面的题目生成封面
     const generateMissingCovers = async () => {
-      const targets = riddles.filter(r => !r.coverImage || String(r.coverImage).trim() === '');
+      // 始终基于全量数据（不受当前搜索/分页影响）
+      let all = [];
+      if (isCloud) {
+        const { data, error } = await SupabaseUtil.fetchRiddles();
+        if (error) { showMessage('读取云端失败，无法生成', 'error'); return; }
+        all = mapCloud(data || []);
+      } else {
+        all = StorageUtil.getRiddles() || [];
+      }
+      const targets = all.filter(r => !r.coverImage || String(r.coverImage).trim() === '');
       if (targets.length === 0) { showMessage('没有需要补充封面的题目', 'info'); return; }
       if (!confirm(`将为 ${targets.length} 条题目生成封面，可能需要较长时间，是否继续？`)) return;
       setIsBulkGenerating(true);
@@ -227,7 +224,6 @@ function ManageRiddles() {
                 <input className="form-input flex-1 md:w-80" placeholder="搜索标题 / 类型 / 难度..." value={search} onChange={(e)=>setSearch(e.target.value)} />
                 <a href="add-riddle.html" className="btn-primary whitespace-nowrap">新建题目</a>
                 <button className="btn-secondary whitespace-nowrap" onClick={generateMissingCovers} disabled={isLoading || isBulkGenerating}>{isBulkGenerating ? '生成中...' : '生成缺失封面'}</button>
-                <button className="btn-secondary whitespace-nowrap" onClick={clearAll}>清空题库</button>
               </div>
             </div>
 
