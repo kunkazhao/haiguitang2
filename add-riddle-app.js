@@ -55,13 +55,22 @@ function AddRiddle() {
 
       setIsSubmitting(true);
       try {
+        // 自动生成封面图（仅作为封面，不支持手动上传）
+        let coverImage = '';
+        try {
+          coverImage = await ImageGenerator.generateCoverImage(formData.surface.trim());
+        } catch (genErr) {
+          console.warn('封面自动生成失败，将继续保存文字内容', genErr);
+        }
+
         if (window.SupabaseUtil && SupabaseUtil.isConfigured()) {
           const payload = {
             title: formData.title.trim(),
             surface: formData.surface.trim(),
             bottom: formData.bottom.trim(),
             type: formData.type,
-            difficulty: formData.difficulty
+            difficulty: formData.difficulty,
+            cover_image: coverImage || null
           };
           const { data, error } = await SupabaseUtil.insertRiddle(payload);
           if (error) throw error;
@@ -73,7 +82,8 @@ function AddRiddle() {
             surface: formData.surface.trim(),
             bottom: formData.bottom.trim(),
             type: formData.type,
-            difficulty: formData.difficulty
+            difficulty: formData.difficulty,
+            coverImage
           });
           if (!newRiddle) throw new Error('保存失败');
           showMessage('题目添加成功（本地）', 'success');
@@ -170,4 +180,3 @@ root.render(
     <AddRiddle />
   </ErrorBoundary>
 );
-
