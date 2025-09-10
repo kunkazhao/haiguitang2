@@ -34,7 +34,7 @@
         if (window.SupabaseUtil && SupabaseUtil.isConfigured()) {
           try {
             const { data, error } = await SupabaseUtil.fetchRiddles();
-            if (!error && Array.isArray(data)) {
+            if (!error && Array.isArray(data) && data.length > 0) {
               // 灏嗗瓧娈垫槧灏勪负鍓嶇灞曠ず缁撴瀯锛堜繚鎸佺粍浠跺吋瀹癸級
               const mapped = data.map(r => ({
                 id: r.id,
@@ -131,6 +131,7 @@ root.render(
     <App />
   </ErrorBoundary>
 );
+
 
 
 
