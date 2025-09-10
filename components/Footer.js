@@ -8,9 +8,9 @@ function Footer() {
             © {year} 海龟汤题库 · 作者：<span className="text-[var(--text-primary)]">赵二</span>
           </div>
           <div className="flex items-center gap-4">
-            <a href="index.html" className="hover:text-[var(--text-primary)]">首页</a>
-            <a href="manage.html" className="hover:text-[var(--text-primary)]">管理</a>
-            <a href="add-riddle.html" className="hover:text-[var(--text-primary)]">添加题目</a>
+            <a href="/" className="hover:text-[var(--text-primary)]">首页</a>
+            <a href="/manage" className="hover:text-[var(--text-primary)]">管理</a>
+            <a href="/add-riddle" className="hover:text-[var(--text-primary)]">添加题目</a>
           </div>
         </div>
       </footer>
@@ -20,4 +20,3 @@ function Footer() {
     return null;
   }
 }
-

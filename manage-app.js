@@ -246,7 +246,7 @@ function ManageRiddles() {
               <h1 className="text-3xl font-bold text-[var(--text-primary)]">题库管理 {isCloud ? <span className="text-sm ml-2 text-[var(--text-secondary)]">(云端)</span> : <span className="text-sm ml-2 text-[var(--text-secondary)]">(本地)</span>}</h1>
               <div className="flex gap-3 w-full md:w-auto">
                 <input className="form-input flex-1 md:w-80" placeholder="搜索标题 / 类型 / 难度..." value={search} onChange={(e)=>setSearch(e.target.value)} />
-                <a href="add-riddle.html" className="btn-primary whitespace-nowrap">新建题目</a>
+                <a href="/add-riddle" className="btn-primary whitespace-nowrap">新建题目</a>
                 <button className="btn-secondary whitespace-nowrap" onClick={generateMissingCovers} disabled={isLoading || isBulkGenerating}>{isBulkGenerating ? '生成中...' : '生成缺失封面'}</button>
               </div>
             </div>

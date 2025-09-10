@@ -1,4 +1,4 @@
-class ErrorBoundary extends React.Component {
+﻿class ErrorBoundary extends React.Component {
   constructor(props) {
     super(props);
     this.state = { hasError: false, error: null };
@@ -12,9 +12,9 @@ class ErrorBoundary extends React.Component {
       return (
         <div className="min-h-screen flex items-center justify-center bg-[var(--background-dark)]">
           <div className="text-center">
-            <h1 className="text-2xl font-bold text-[var(--text-primary)] mb-4">出现了一些问题</h1>
-            <p className="text-[var(--text-secondary)] mb-4">抱歉，发生了意外错误</p>
-            <button onClick={() => window.location.reload()} className="btn-primary">重新加载</button>
+            <h1 className="text-2xl font-bold text-[var(--text-primary)] mb-4">鍑虹幇浜嗕竴浜涢棶棰?/h1>
+            <p className="text-[var(--text-secondary)] mb-4">鎶辨瓑锛屽彂鐢熶簡鎰忓閿欒</p>
+            <button onClick={() => window.location.reload()} className="btn-primary">閲嶆柊鍔犺浇</button>
           </div>
         </div>
       );
@@ -37,7 +37,7 @@ function RiddleDetail() {
         const riddleId = urlParams.get('id');
         if (!riddleId) { setIsLoading(false); return; }
 
-        // 优先云端
+        // 浼樺厛浜戠
         if (window.SupabaseUtil && SupabaseUtil.isConfigured()) {
           try {
             const { data, error } = await SupabaseUtil.fetchRiddleById(riddleId);
@@ -47,8 +47,8 @@ function RiddleDetail() {
                 title: data.title,
                 surface: data.surface || '',
                 bottom: data.bottom || '',
-                type: data.type || '本格',
-                difficulty: data.difficulty || '中等',
+                type: data.type || '鏈牸',
+                difficulty: data.difficulty || '涓瓑',
                 surfaceImage: data.surface_image || '',
                 bottomImage: data.bottom_image || '',
                 coverImage: data.cover_image || ''
@@ -57,11 +57,11 @@ function RiddleDetail() {
               return;
             }
           } catch (e) {
-            console.warn('云端读取失败，回退本地：', e);
+            console.warn('浜戠璇诲彇澶辫触锛屽洖閫€鏈湴锛?, e);
           }
         }
 
-        // 回退本地
+        // 鍥為€€鏈湴
         const foundRiddle = StorageUtil.getRiddleById(riddleId);
         setRiddle(foundRiddle);
         setIsLoading(false);
@@ -71,24 +71,24 @@ function RiddleDetail() {
     const copyToClipboard = async (text, label) => {
       try {
         await navigator.clipboard.writeText(text);
-        setCopyMessage(`已复制${label}`);
+        setCopyMessage(`宸插鍒?{label}`);
         setTimeout(() => setCopyMessage(''), 2000);
       } catch (error) {
-        setCopyMessage('复制失败');
+        setCopyMessage('澶嶅埗澶辫触');
         setTimeout(() => setCopyMessage(''), 2000);
       }
     };
 
     const handleCopySurface = () => {
       const content = (riddle.surface && riddle.surface.trim()) ? riddle.surface : (riddle.surfaceImage || '');
-      copyToClipboard(content, '汤面');
+      copyToClipboard(content, '姹ら潰');
     };
 
     const handleCopyAll = () => {
-      const surfacePart = (riddle.surface && riddle.surface.trim()) ? riddle.surface : (riddle.surfaceImage ? `[图片] ${riddle.surfaceImage}` : '');
-      const bottomPart = (riddle.bottom && riddle.bottom.trim()) ? riddle.bottom : (riddle.bottomImage ? `[图片] ${riddle.bottomImage}` : '');
-      const fullText = `${surfacePart}\n\n答案：${bottomPart}`.trim();
-      copyToClipboard(fullText, '完整内容');
+      const surfacePart = (riddle.surface && riddle.surface.trim()) ? riddle.surface : (riddle.surfaceImage ? `[鍥剧墖] ${riddle.surfaceImage}` : '');
+      const bottomPart = (riddle.bottom && riddle.bottom.trim()) ? riddle.bottom : (riddle.bottomImage ? `[鍥剧墖] ${riddle.bottomImage}` : '');
+      const fullText = `${surfacePart}\n\n绛旀锛?{bottomPart}`.trim();
+      copyToClipboard(fullText, '瀹屾暣鍐呭');
     };
 
     if (isLoading) {
@@ -96,7 +96,7 @@ function RiddleDetail() {
         <div className="min-h-screen bg-[var(--background-dark)]">
           <Header />
           <div className="container mx-auto px-4 py-8">
-            <Loading full text="加载题目详情中..." />
+            <Loading full text="鍔犺浇棰樼洰璇︽儏涓?.." />
           </div>
         </div>
       );
@@ -108,8 +108,8 @@ function RiddleDetail() {
           <Header />
           <div className="container mx-auto px-4 py-8">
             <div className="text-center">
-              <h2 className="text-2xl font-bold text-[var(--text-primary)] mb-4">题目未找到</h2>
-              <a href="index.html" className="btn-primary">返回首页</a>
+              <h2 className="text-2xl font-bold text-[var(--text-primary)] mb-4">棰樼洰鏈壘鍒?/h2>
+              <a href=\"/\" className="btn-primary">杩斿洖棣栭〉</a>
             </div>
           </div>
         </div>
@@ -122,9 +122,9 @@ function RiddleDetail() {
         <div className="container mx-auto px-4 py-8">
           <div className="max-w-4xl mx-auto">
             <div className="mb-6">
-              <a href="index.html" className="text-[var(--primary-color)] hover:underline flex items-center">
+              <a href=\"/\" className="text-[var(--primary-color)] hover:underline flex items-center">
                 <div className="icon-arrow-left text-sm mr-2"></div>
-                返回题库
+                杩斿洖棰樺簱
               </a>
             </div>
 
@@ -148,10 +148,10 @@ function RiddleDetail() {
               </div>
 
               <div className="mb-8">
-                <h2 className="text-xl font-semibold text-[var(--text-primary)] mb-4">汤面</h2>
+                <h2 className="text-xl font-semibold text-[var(--text-primary)] mb-4">姹ら潰</h2>
                 <div className="bg-[var(--background-dark)] p-6 rounded-lg border border-[var(--border-color)] space-y-4">
                   {riddle.surfaceImage && riddle.surfaceImage.trim() !== '' && (
-                    <img src={riddle.surfaceImage} alt="汤面图片" className="w-full max-h-[480px] object-contain rounded" onError={(e)=>{e.target.style.display='none';}} />
+                    <img src={riddle.surfaceImage} alt="姹ら潰鍥剧墖" className="w-full max-h-[480px] object-contain rounded" onError={(e)=>{e.target.style.display='none';}} />
                   )}
                   {riddle.surface && riddle.surface.trim() !== '' && (
                     <p className="text-[var(--text-primary)] leading-relaxed text-lg">{riddle.surface}</p>
@@ -161,17 +161,17 @@ function RiddleDetail() {
 
               <div className="mb-8">
                 <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-xl font-semibold text-[var(--text-primary)]">汤底</h2>
+                  <h2 className="text-xl font-semibold text-[var(--text-primary)]">姹ゅ簳</h2>
                   <button onClick={() => setShowAnswer(!showAnswer)} className={showAnswer ? 'btn-secondary' : 'btn-primary'}>
                     <div className={`${showAnswer ? 'icon-eye-off' : 'icon-eye'} text-sm mr-2 inline-block`}></div>
-                    {showAnswer ? '隐藏答案' : '显示答案'}
+                    {showAnswer ? '闅愯棌绛旀' : '鏄剧ず绛旀'}
                   </button>
                 </div>
 
                 {showAnswer && (
                   <div className="bg-[var(--background-dark)] p-6 rounded-lg border border-[var(--border-color)] space-y-4">
                     {riddle.bottomImage && riddle.bottomImage.trim() !== '' && (
-                      <img src={riddle.bottomImage} alt="汤底图片" className="w-full max-h-[480px] object-contain rounded" onError={(e)=>{e.target.style.display='none';}} />
+                      <img src={riddle.bottomImage} alt="姹ゅ簳鍥剧墖" className="w-full max-h-[480px] object-contain rounded" onError={(e)=>{e.target.style.display='none';}} />
                     )}
                     {riddle.bottom && riddle.bottom.trim() !== '' && (
                       <p className="text-[var(--text-primary)] leading-relaxed text-lg">{riddle.bottom}</p>
@@ -183,11 +183,11 @@ function RiddleDetail() {
               <div className="flex flex-wrap gap-4">
                 <button onClick={handleCopySurface} className="btn-secondary">
                   <div className="icon-copy text-sm mr-2 inline-block"></div>
-                  复制汤面
+                  澶嶅埗姹ら潰
                 </button>
                 <button onClick={handleCopyAll} className="btn-secondary">
                   <div className="icon-copy text-sm mr-2 inline-block"></div>
-                  复制完整内容
+                  澶嶅埗瀹屾暣鍐呭
                 </button>
               </div>
 
@@ -212,3 +212,4 @@ root.render(
     <RiddleDetail />
   </ErrorBoundary>
 );
+

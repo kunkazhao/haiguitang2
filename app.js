@@ -1,4 +1,4 @@
-class ErrorBoundary extends React.Component {
+﻿class ErrorBoundary extends React.Component {
   constructor(props) {
     super(props);
     this.state = { hasError: false, error: null };
@@ -17,13 +17,12 @@ class ErrorBoundary extends React.Component {
       return (
         <div className="min-h-screen flex items-center justify-center bg-[var(--background-dark)]">
           <div className="text-center">
-            <h1 className="text-2xl font-bold text-[var(--text-primary)] mb-4">出现了一些问题</h1>
-            <p className="text-[var(--text-secondary)] mb-4">抱歉，发生了意外错误</p>
+            <h1 className="text-2xl font-bold text-[var(--text-primary)] mb-4">出现了一些问题</h1>`r`n            <p className="text-[var(--text-secondary)] mb-4">鎶辨瓑锛屽彂鐢熶簡鎰忓閿欒</p>
             <button
               onClick={() => window.location.reload()}
               className="btn-primary"
             >
-              重新加载
+              閲嶆柊鍔犺浇
             </button>
           </div>
         </div>
@@ -45,36 +44,35 @@ function App() {
     React.useEffect(() => {
       (async () => {
         setIsLoading(true);
-        // 优先读取云端
+        // 浼樺厛璇诲彇浜戠
         if (window.SupabaseUtil && SupabaseUtil.isConfigured()) {
           try {
             const { data, error } = await SupabaseUtil.fetchRiddles();
             if (!error && Array.isArray(data)) {
-              // 将字段映射为前端展示结构（保持组件兼容）
+              // 灏嗗瓧娈垫槧灏勪负鍓嶇灞曠ず缁撴瀯锛堜繚鎸佺粍浠跺吋瀹癸級
               const mapped = data.map(r => ({
                 id: r.id,
                 title: r.title,
                 surface: r.surface || '',
                 bottom: r.bottom || '',
-                type: r.type || '本格',
-                difficulty: r.difficulty || '中等',
+                type: r.type || '鏈牸',
+                difficulty: r.difficulty || '涓瓑',
                 surfaceImage: r.surface_image || '',
                 bottomImage: r.bottom_image || '',
                 coverImage: r.cover_image || '',
                 updatedAt: r.created_at || new Date().toISOString()
               }));
-              // 按时间倒序，最新在前
-              mapped.sort((a,b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+              // 鎸夋椂闂村€掑簭锛屾渶鏂板湪鍓?              mapped.sort((a,b) => new Date(b.updatedAt) - new Date(a.updatedAt));
               setRiddles(mapped);
               setIsLoading(false);
               return;
             }
           } catch (e) {
-            console.warn('读取云端失败，回退到本地：', e);
+            console.warn('璇诲彇浜戠澶辫触锛屽洖閫€鍒版湰鍦帮細', e);
           }
         }
 
-        // 本地回退：localStorage 没有则用样例数据
+        // 鏈湴鍥為€€锛歭ocalStorage 娌℃湁鍒欑敤鏍蜂緥鏁版嵁
         const stored = StorageUtil.getRiddles();
         if (stored.length === 0) {
           const initialData = getSampleRiddles();
@@ -123,7 +121,7 @@ function App() {
             <SearchBar onSearch={handleSearch} />
             <FilterPanel onFilterChange={handleFilterChange} />
             {isLoading ? (
-              <Loading text="加载题目中..." />
+              <Loading text="鍔犺浇棰樼洰涓?.." />
             ) : (
               <RiddleList 
                 riddles={filteredRiddles} 
@@ -147,3 +145,4 @@ root.render(
     <App />
   </ErrorBoundary>
 );
+
