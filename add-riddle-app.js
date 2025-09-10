@@ -75,7 +75,7 @@ function AddRiddle() {
           const { data, error } = await SupabaseUtil.insertRiddle(payload);
           if (error) throw error;
           showMessage('棰樼洰宸蹭繚瀛樺埌浜戠', 'success');
-          setTimeout(() => { window.location.href = `riddle.html?id=${data.id}`; }, 1000);
+          setTimeout(() => { window.location.href = `/riddle?id=${data.id}`; }, 1000);
         } else {
           const newRiddle = StorageUtil.addRiddle({
             title: formData.title.trim(),
@@ -87,7 +87,7 @@ function AddRiddle() {
           });
           if (!newRiddle) throw new Error('淇濆瓨澶辫触');
           showMessage('棰樼洰娣诲姞鎴愬姛锛堟湰鍦帮級', 'success');
-          setTimeout(() => { window.location.href = `riddle.html?id=${newRiddle.id}`; }, 1000);
+          setTimeout(() => { window.location.href = `/riddle?id=${newRiddle.id}`; }, 1000);
         }
       } catch (err) {
         console.error('鎻愪氦澶辫触锛?, err);
@@ -103,7 +103,7 @@ function AddRiddle() {
         <div className="container mx-auto px-4 py-8">
           <div className="max-w-2xl mx-auto">
             <div className="mb-6">
-              <a href=\"/\" className="text-[var(--primary-color)] hover:underline flex items-center">
+              <a href="/" className="text-[var(--primary-color)] hover:underline flex items-center">
                 <div className="icon-arrow-left text-sm mr-2"></div>
                 杩斿洖棣栭〉
               </a>
@@ -180,5 +180,6 @@ root.render(
     <AddRiddle />
   </ErrorBoundary>
 );
+
 
 

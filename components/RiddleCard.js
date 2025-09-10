@@ -1,4 +1,4 @@
-function RiddleCard({ riddle, onClick }) {
+﻿function RiddleCard({ riddle, onClick }) {
   try {
     return (
       <div 
@@ -20,7 +20,7 @@ function RiddleCard({ riddle, onClick }) {
               }}
             />
           ) : null}
-          {/* 占位图（无封面或加载失败时） */}
+          {/* 鍗犱綅鍥撅紙鏃犲皝闈㈡垨鍔犺浇澶辫触鏃讹級 */}
           <div className="absolute inset-0 bg-gradient-to-br from-slate-700 to-slate-800 hidden items-center justify-center" style={{display: (riddle.coverImage && riddle.coverImage.trim() !== '') ? 'none' : 'flex'}}>
             <div className="icon-image text-2xl text-slate-300"></div>
           </div>
@@ -33,7 +33,7 @@ function RiddleCard({ riddle, onClick }) {
         </div>
         
         <p className="text-[var(--text-secondary)] mb-4 line-clamp-3">
-          {riddle.surface && riddle.surface.trim() !== '' ? riddle.surface : (riddle.surfaceImage ? '【图片题】点击查看详情' : '')}
+          {riddle.surface && riddle.surface.trim() !== '' ? riddle.surface : (riddle.surfaceImage ? '銆愬浘鐗囬銆戠偣鍑绘煡鐪嬭鎯? : '')}
         </p>
         
         <div className="flex items-center justify-between">
@@ -54,3 +54,4 @@ function RiddleCard({ riddle, onClick }) {
     return null;
   }
 }
+

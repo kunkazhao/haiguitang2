@@ -305,14 +305,14 @@ function ManageRiddles() {
                       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
                         <div>
                           <div className="flex items-center gap-3 mb-1">
-                            <a className="text-xl font-semibold hover:underline" href={`riddle.html?id=${r.id}`}>{r.title}</a>
+                            <a className="text-xl font-semibold hover:underline" href={`/riddle?id=${r.id}`}>{r.title}</a>
                             <span className="tag">{r.type}</span>
                             <span className="tag-difficulty">{r.difficulty}</span>
                           </div>
                           <div className="text-xs text-[var(--text-secondary)]">ID: {r.id} 路 鏈€杩戞洿鏂帮細{r.updatedAt ? new Date(r.updatedAt).toLocaleString() : '-'}</div>
                         </div>
                         <div className="flex gap-2">
-                          <a href={`riddle.html?id=${r.id}`} className="btn-secondary">鏌ョ湅</a>
+                          <a href={`/riddle?id=${r.id}`} className="btn-secondary">鏌ョ湅</a>
                           <button className="btn-secondary" onClick={()=>startEdit(r)}>缂栬緫</button>
                           <button className="btn-secondary" onClick={()=>generateCoverFor(r)} disabled={generatingId===r.id}>{generatingId===r.id ? '鐢熸垚涓?..' : '鐢熸垚灏侀潰'}</button>
                           <button className="btn-secondary" onClick={()=>deleteOne(r.id)}>鍒犻櫎</button>
@@ -344,4 +344,5 @@ root.render(
     <ManageRiddles />
   </ErrorBoundary>
 );
+
 

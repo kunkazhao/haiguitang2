@@ -110,7 +110,7 @@ function App() {
     };
 
     const handleRiddleClick = (riddleId) => {
-      window.location.href = `riddle.html?id=${riddleId}`;
+      window.location.href = `/riddle?id=${riddleId}`;
     };
 
     return (
@@ -145,5 +145,6 @@ root.render(
     <App />
   </ErrorBoundary>
 );
+
 
 
