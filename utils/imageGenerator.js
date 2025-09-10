@@ -60,7 +60,15 @@ const ImageGenerator = {
         return '';
       }
       const data = await resp.json();
-      return (data?.data?.[0]?.url || '').trim();
+      const entry = (data && data.data && data.data[0]) ? data.data[0] : {};
+      if (entry && entry.url && String(entry.url).trim() !== '') {
+        return String(entry.url).trim();
+      }
+      if (entry && (entry.b64_json || entry.base64 || entry.image_base64)) {
+        const b64 = entry.b64_json || entry.base64 || entry.image_base64;
+        return `data:image/png;base64,${b64}`;
+      }
+      return '';
     } catch (e) {
       console.error('Error generating image:', e);
       return '';
@@ -82,4 +90,3 @@ const ImageGenerator = {
     }
   }
 };
-
