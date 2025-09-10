@@ -1,16 +1,18 @@
 const ImageGenerator = {
-  // 获取配置
+  // 读取环境配置
   getConfig() {
     return EnvConfig.getConfig();
   },
-  
+
+  // 生成英文提示词；失败则返回空串
   async generatePrompt(surface) {
     try {
-      const config = this.getConfig();
-      const response = await fetch(`${config.SILICONFLOW_PROXY_URL}/v1/chat/completions`, {
+      const cfg = this.getConfig();
+      const base = String(cfg.SILICONFLOW_PROXY_URL || '').replace(/\/$/, '');
+      const resp = await fetch(`${base}/v1/chat/completions`, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${config.SILICONFLOW_API_KEY}`,
+          'Authorization': `Bearer ${cfg.SILICONFLOW_API_KEY}`,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
@@ -18,31 +20,32 @@ const ImageGenerator = {
           messages: [
             {
               role: 'user',
-              content: `请根据以下海龟汤汤面内容，提取视觉要素（场景/氛围/道具/人物轮廓），生成一个适合作为封面图的英文提示词。要求神秘、悬疑、故事氛围，风格统一。
-
-汤面内容：${surface}
-
-请直接返回英文提示词，不要包含其他解释。`
+              content: `请根据以下海龟汤汤面内容，提取视觉要素（场景/氛围/道具/人物），生成一个适合作为封面图的英文提示词。要求神秘、悬疑、故事氛围，风格统一。\n\n汤面内容：${surface}\n\n请直接返回英文提示词，不要包含其他解释。`
             }
           ]
         })
       });
-      
-      const data = await response.json();
-      return data.choices?.[0]?.message?.content || '';
-    } catch (error) {
-      console.error('Error generating prompt:', error);
+      if (!resp.ok) {
+        console.warn('generatePrompt HTTP error', resp.status);
+        return '';
+      }
+      const data = await resp.json();
+      return (data?.choices?.[0]?.message?.content || '').trim();
+    } catch (e) {
+      console.error('Error generating prompt:', e);
       return '';
     }
   },
-  
+
+  // 根据提示词生成图片；失败返回空串
   async generateImage(prompt) {
     try {
-      const config = this.getConfig();
-      const response = await fetch(`${config.SILICONFLOW_PROXY_URL}/v1/images/generations`, {
+      const cfg = this.getConfig();
+      const base = String(cfg.SILICONFLOW_PROXY_URL || '').replace(/\/$/, '');
+      const resp = await fetch(`${base}/v1/images/generations`, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${config.SILICONFLOW_API_KEY}`,
+          'Authorization': `Bearer ${cfg.SILICONFLOW_API_KEY}`,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
@@ -52,25 +55,31 @@ const ImageGenerator = {
           n: 1
         })
       });
-      
-      const data = await response.json();
-      return data.data?.[0]?.url || '';
-    } catch (error) {
-      console.error('Error generating image:', error);
+      if (!resp.ok) {
+        console.warn('generateImage HTTP error', resp.status);
+        return '';
+      }
+      const data = await resp.json();
+      return (data?.data?.[0]?.url || '').trim();
+    } catch (e) {
+      console.error('Error generating image:', e);
       return '';
     }
   },
-  
+
+  // 综合：若提示词生成失败，回退直接用汤面文本
   async generateCoverImage(surface) {
     try {
-      const prompt = await ImageGenerator.generatePrompt(surface);
-      if (!prompt) return '';
-      
-      const imageUrl = await ImageGenerator.generateImage(prompt);
-      return imageUrl;
-    } catch (error) {
-      console.error('Error generating cover image:', error);
+      let prompt = await this.generatePrompt(surface);
+      if (!prompt) {
+        const baseText = String(surface || '').slice(0, 280);
+        prompt = `${baseText}, mysterious atmosphere, dark theme, suspenseful mood, cinematic lighting, high quality`;
+      }
+      return await this.generateImage(prompt);
+    } catch (e) {
+      console.error('Error generating cover image:', e);
       return '';
     }
   }
 };
+
