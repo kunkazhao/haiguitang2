@@ -151,11 +151,28 @@ function ManageRiddles() {
     // 已移除清空题库功能（避免误操作）
 
     // 生成指定题目的封面（仅文字生成）
+    const _buildText = (r) => {
+      const parts = [];
+      if (r.surface && r.surface.trim()) parts.push(r.surface.trim());
+      if (r.title && r.title.trim()) parts.push(`题目：${r.title.trim()}`);
+      if (r.type) parts.push(`类型：${r.type}`);
+      if (r.difficulty) parts.push(`难度：${r.difficulty}`);
+      const text = parts.join(' \n ');
+      return text || (r.title ? `题目：${r.title}` : '神秘故事封面');
+    };
+
+    const _sleep = (ms) => new Promise(res => setTimeout(res, ms));
+
     const generateCoverFor = async (r) => {
-      if (!r || !r.surface || !r.surface.trim()) { showMessage('该题目缺少汤面文本', 'error'); return; }
+      if (!r) { showMessage('未找到题目', 'error'); return; }
       setGeneratingId(r.id);
       try {
-        const url = await ImageGenerator.generateCoverImage(r.surface.trim());
+        const input = _buildText(r);
+        let url = '';
+        for (let attempt = 0; attempt < 2 && !url; attempt++) {
+          url = await ImageGenerator.generateCoverImage(input);
+          if (!url) await _sleep(400);
+        }
         if (!url) { showMessage('生成失败，请稍后重试', 'error'); return; }
         if (isCloud) {
           const { error } = await SupabaseUtil.updateRiddle(r.id, { cover_image: url });
@@ -177,7 +194,7 @@ function ManageRiddles() {
 
     // 批量为缺失封面的题目生成封面
     const generateMissingCovers = async () => {
-      // 始终基于全量数据（不受当前搜索/分页影响）
+      // 始终基于全量数据（不受当前搜索影响）
       let all = [];
       if (isCloud) {
         const { data, error } = await SupabaseUtil.fetchRiddles();
@@ -191,20 +208,27 @@ function ManageRiddles() {
       if (!confirm(`将为 ${targets.length} 条题目生成封面，可能需要较长时间，是否继续？`)) return;
       setIsBulkGenerating(true);
       try {
+        let okCount = 0, failCount = 0;
         for (const r of targets) {
-          const url = await ImageGenerator.generateCoverImage((r.surface||'').trim());
-          if (!url) continue;
+          const input = _buildText(r);
+          let url = '';
+          for (let attempt = 0; attempt < 2 && !url; attempt++) {
+            url = await ImageGenerator.generateCoverImage(input);
+            if (!url) await _sleep(400);
+          }
+          if (!url) { failCount++; continue; }
           if (isCloud) {
             const { error } = await SupabaseUtil.updateRiddle(r.id, { cover_image: url });
-            if (error) continue;
+            if (error) { failCount++; continue; }
           } else {
             const ok = StorageUtil.updateRiddle(r.id, { coverImage: url });
-            if (!ok) continue;
+            if (!ok) { failCount++; continue; }
           }
-          // 局部更新
+          okCount++;
           setRiddles(prev => prev.map(it => it.id === r.id ? { ...it, coverImage: url } : it));
+          await _sleep(200);
         }
-        showMessage('批量生成完成', 'success');
+        showMessage(`批量生成完成：成功 ${okCount} 条，失败 ${failCount} 条`, failCount ? 'info' : 'success');
       } catch (e) {
         console.error('generateMissingCovers error:', e);
         showMessage('批量生成出错，请重试', 'error');
