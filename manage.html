@@ -1,11 +1,11 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>棰樺簱绠＄悊 - 娴烽緹姹ら搴?/title>
-  <meta name="description" content="绠＄悊娴烽緹姹ら搴擄紝鏀寔澧炲垹鏀规煡">
-  <meta name="keywords" content="娴烽緹姹? 棰樺簱绠＄悊, 娴烽緹姹ょ鐞?>
+  <title>题库管理 - 海龟汤题库</title>
+  <meta name="description" content="管理海龟汤题库，支持增删改查与封面生成">
+  <meta name="keywords" content="海龟汤, 题库管理, 管理">
 
   <script src="https://resource.trickle.so/vendor_lib/unpkg/react@18/umd/react.production.min.js"></script>
   <script src="https://resource.trickle.so/vendor_lib/unpkg/react-dom@18/umd/react-dom.production.min.js"></script>
@@ -28,28 +28,19 @@
       --border-color: #1f2937;
     }
   }
-
-  @layer base {
-    body { background-color: var(--background-dark); color: var(--text-primary); }
-  }
-
+  @layer base { body{ background-color:var(--background-dark); color:var(--text-primary); } }
   @layer components {
-    .card-dark {
-      background-color: var(--surface-dark);
-      border: 1px solid var(--border-color);
-      border-radius: 12px;
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
-    }
-    .btn-primary { background-color: var(--primary-color); color: white; padding: 0.75rem 1.5rem; border-radius: 8px; font-weight: 500; transition: all 0.2s ease; }
-    .btn-primary:hover { background-color: #7c3aed; transform: translateY(-1px); }
-    .btn-secondary { background-color: var(--surface-dark); color: var(--text-primary); border: 1px solid var(--border-color); padding: 0.5rem 1rem; border-radius: 8px; font-weight: 500; transition: all 0.2s ease; }
-    .btn-secondary:hover { background-color: var(--secondary-color); border-color: var(--primary-color); }
-    .form-input { background-color: var(--surface-dark); border: 1px solid var(--border-color); color: var(--text-primary); padding: 0.6rem 0.9rem; border-radius: 8px; width: 100%; }
-    .form-input:focus { outline: none; border-color: var(--primary-color); box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1); }
-    .form-textarea { background-color: var(--surface-dark); border: 1px solid var(--border-color); color: var(--text-primary); padding: 0.6rem 0.9rem; border-radius: 8px; width: 100%; min-height: 100px; resize: vertical; }
-    .form-textarea:focus { outline: none; border-color: var(--primary-color); box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1); }
-    .form-select { background-color: var(--surface-dark); border: 1px solid var(--border-color); color: var(--text-primary); padding: 0.6rem 0.9rem; border-radius: 8px; width: 100%; }
-    .form-select:focus { outline: none; border-color: var(--primary-color); box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1); }
+    .card-dark{background-color:var(--surface-dark);border:1px solid var(--border-color);border-radius:12px;box-shadow:0 4px 6px -1px rgba(0,0,0,.3)}
+    .btn-primary{background-color:var(--primary-color);color:#fff;padding:.75rem 1.5rem;border-radius:8px;font-weight:500;transition:all .2s}
+    .btn-primary:hover{background-color:#7c3aed;transform:translateY(-1px)}
+    .btn-secondary{background-color:var(--surface-dark);color:var(--text-primary);border:1px solid var(--border-color);padding:.5rem 1rem;border-radius:8px;font-weight:500;transition:all .2s}
+    .btn-secondary:hover{background-color:var(--secondary-color);border-color:var(--primary-color)}
+    .form-input{background-color:var(--surface-dark);border:1px solid var(--border-color);color:var(--text-primary);padding:.6rem .9rem;border-radius:8px;width:100%}
+    .form-input:focus{outline:none;border-color:var(--primary-color);box-shadow:0 0 0 3px rgba(96,165,250,.15)}
+    .form-textarea{background-color:var(--surface-dark);border:1px solid var(--border-color);color:var(--text-primary);padding:.6rem .9rem;border-radius:8px;width:100%;min-height:100px;resize:vertical}
+    .form-textarea:focus{outline:none;border-color:var(--primary-color);box-shadow:0 0 0 3px rgba(96,165,250,.15)}
+    .form-select{background-color:var(--surface-dark);border:1px solid var(--border-color);color:var(--text-primary);padding:.6rem .9rem;border-radius:8px;width:100%}
+    .form-select:focus{outline:none;border-color:var(--primary-color);box-shadow:0 0 0 3px rgba(96,165,250,.15)}
   }
   </style>
 </head>
@@ -58,7 +49,7 @@
   <script type="text/babel" src="components/Header.js"></script>
   <script type="text/babel" src="components/Footer.js"></script>
   <script type="text/babel" src="components/Loading.js"></script>
-  <!-- 鍙€夛細鍓嶇鍏紑閰嶇疆锛堝鏋滃瓨鍦級 -->
+  <!-- 可选：前端公开配置 -->
   <script src="config/public-env.js"></script>
   <script type="text/babel" src="utils/envConfig.js"></script>
   <script type="text/babel" src="utils/supabaseClient.js"></script>
@@ -68,4 +59,3 @@
   <script type="text/babel" src="manage-app.js"></script>
 </body>
 </html>
-
