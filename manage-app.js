@@ -1,4 +1,4 @@
-﻿class ErrorBoundary extends React.Component {
+class ErrorBoundary extends React.Component {
   constructor(props) { super(props); this.state = { hasError: false, error: null }; }
   static getDerivedStateFromError(error) { return { hasError: true, error }; }
   componentDidCatch(error, errorInfo) { console.error('ErrorBoundary caught:', error, errorInfo?.componentStack); }
@@ -7,9 +7,9 @@
       return (
         <div className="min-h-screen flex items-center justify-center bg-[var(--background-dark)]">
           <div className="text-center">
-            <h1 className="text-2xl font-bold text-[var(--text-primary)] mb-4">鍑虹幇浜嗕竴浜涢棶棰?/h1>
-            <p className="text-[var(--text-secondary)] mb-4">鎶辨瓑锛屽彂鐢熶簡鎰忓閿欒</p>
-            <button onClick={() => window.location.reload()} className="btn-primary">閲嶆柊鍔犺浇</button>
+            <h1 className="text-2xl font-bold text-[var(--text-primary)] mb-4">\u51FA\u73B0\u4E86\u4E00\u4E9B\u95EE\u9898</h1>
+            <p className="text-[var(--text-secondary)] mb-4">\u62B1\u6B49\uFF0C\u53D1\u751F\u4E86\u610F\u5916\u9519\u8BEF</p>
+            <button onClick={() => window.location.reload()} className="btn-primary">\u91CD\u65B0\u52A0\u8F7D</button>
           </div>
         </div>
       );
@@ -20,53 +20,44 @@
 
 function ManageRiddles() {
   try {
-    const isCloud = Boolean(window.SupabaseUtil && SupabaseUtil.isConfigured());
     const [riddles, setRiddles] = React.useState([]);
     const [isLoading, setIsLoading] = React.useState(true);
-    const [isBulkGenerating, setIsBulkGenerating] = React.useState(false);
-    const [generatingId, setGeneratingId] = React.useState('');
     const [search, setSearch] = React.useState('');
     const [editingId, setEditingId] = React.useState(null);
-    const [form, setForm] = React.useState({ title: '', surface: '', bottom: '', type: '鏈牸', difficulty: '涓瓑' });
+    const [form, setForm] = React.useState({ title: '', surface: '', bottom: '', type: '\u672C\u683C', difficulty: '\u4E2D\u7B49' });
     const [message, setMessage] = React.useState('');
     const [messageType, setMessageType] = React.useState('info');
+    const [generatingId, setGeneratingId] = React.useState('');
+    const [isBulk, setIsBulk] = React.useState(false);
 
-    const showMessage = (text, type = 'info') => { setMessage(text); setMessageType(type); setTimeout(()=>{ setMessage(''); setMessageType('info'); }, 2500); };
-
-    const mapCloud = rows => rows.map(r => ({ id: r.id, title: r.title, surface: r.surface||'', bottom: r.bottom||'', type: r.type||'鏈牸', difficulty: r.difficulty||'涓瓑', coverImage: r.cover_image||'', updatedAt: r.created_at || new Date().toISOString() }));
+    const showMessage = (text, type='info') => { setMessage(text); setMessageType(type); setTimeout(()=>{ setMessage(''); setMessageType('info'); }, 2200); };
 
     const refresh = async () => {
       setIsLoading(true);
-      if (isCloud) {
-        const { data, error } = await SupabaseUtil.fetchRiddles();
-        if (error) {
-          console.warn('浜戠璇诲彇澶辫触锛屽洖閫€鍒版湰鍦帮細', error);
-          console.warn('未检测到 Supabase 配置，管理页将显示空列表'); setRiddles([]);
-        } else { const mapped = mapCloud(data||[]); mapped.sort((a,b)=>new Date(b.updatedAt)-new Date(a.updatedAt)); setRiddles(mapped); }
-      } else {
-        console.warn('未检测到 Supabase 配置，管理页将显示空列表'); setRiddles([]); }
+      if (!(window.SupabaseUtil && SupabaseUtil.isConfigured())) {
+        console.warn('Supabase not configured; show empty list');
+        setRiddles([]); setIsLoading(false); return;
       }
-      setIsLoading(false);
+      try {
+        const { data, error } = await SupabaseUtil.fetchRiddles();
+        if (error) throw error;
+        const mapped = (data||[]).map(r=>({ id:r.id, title:r.title, surface:r.surface||'', bottom:r.bottom||'', type:r.type||'\u672C\u683C', difficulty:r.difficulty||'\u4E2D\u7B49', coverImage:r.cover_image||'', updatedAt:r.created_at||new Date().toISOString() }));
+        mapped.sort((a,b)=>new Date(b.updatedAt)-new Date(a.updatedAt));
+        setRiddles(mapped);
+      } catch (e) { console.error('cloud fetch failed:', e); setRiddles([]); } finally { setIsLoading(false); }
     };
-    React.useEffect(()=>{ refresh(); },[]);
+    React.useEffect(()=>{ refresh(); }, []);
 
-    const filtered = React.useMemo(()=>{ if(!search.trim()) return riddles; const s=search.trim().toLowerCase(); return riddles.filter(r=> r.title?.toLowerCase().includes(s)||r.surface?.toLowerCase().includes(s)||r.bottom?.toLowerCase().includes(s)||r.type?.toLowerCase().includes(s)||r.difficulty?.toLowerCase().includes(s)); },[riddles,search]);
+    const filtered = React.useMemo(()=>{ const s=search.trim().toLowerCase(); if(!s) return riddles; return riddles.filter(r=> (r.title||'').toLowerCase().includes(s) || (r.surface||'').toLowerCase().includes(s) || (r.bottom||'').toLowerCase().includes(s)); },[riddles,search]);
 
-    const startEdit = (r) => { setEditingId(r.id); setForm({ title:r.title||'', surface:r.surface||'', bottom:r.bottom||'', type:r.type||'鏈牸', difficulty:r.difficulty||'涓瓑' }); };
-    const cancelEdit = () => { setEditingId(null); setForm({ title:'', surface:'', bottom:'', type:'鏈牸', difficulty:'涓瓑' }); };
-    const saveEdit = async () => {
-      if (!form.title.trim()) { showMessage('璇峰～鍐欐爣棰?,'error'); return; }
-      if (!form.surface.trim()) { showMessage('璇峰～鍐欐堡闈紙浠呮枃瀛楋級','error'); return; }
-      if (!form.bottom.trim()) { showMessage('璇峰～鍐欐堡搴曪紙浠呮枃瀛楋級','error'); return; }
-      if (isCloud) { const { error } = await SupabaseUtil.updateRiddle(editingId,{ title:form.title.trim(), surface:form.surface.trim(), bottom:form.bottom.trim(), type:form.type, difficulty:form.difficulty }); if(error){ showMessage('淇濆瓨澶辫触锛堜簯绔級','error'); return;} showMessage('淇濆瓨鎴愬姛','success'); setEditingId(null); await refresh(); }
-      else { const updated = StorageUtil.updateRiddle(editingId,{...form}); if(updated){ setRiddles(StorageUtil.getRiddles()); showMessage('淇濆瓨鎴愬姛','success'); setEditingId(null);} else showMessage('淇濆瓨澶辫触锛岃閲嶈瘯','error'); }
-    };
-    const deleteOne = async (id) => { if(!confirm('纭畾鍒犻櫎璇ラ鐩悧锛熷垹闄ゅ悗涓嶅彲鎭㈠')) return; if(isCloud){ const { error } = await SupabaseUtil.deleteRiddle(id); if(error){ showMessage('鍒犻櫎澶辫触锛堜簯绔級','error'); return;} showMessage('宸插垹闄?,'success'); await refresh(); } else { const ok = StorageUtil.deleteRiddle(id); if(ok){ setRiddles(StorageUtil.getRiddles()); showMessage('宸插垹闄?,'success'); } else showMessage('鍒犻櫎澶辫触','error'); } };
+    const startEdit = (r)=>{ setEditingId(r.id); setForm({ title:r.title||'', surface:r.surface||'', bottom:r.bottom||'', type:r.type||'\u672C\u683C', difficulty:r.difficulty||'\u4E2D\u7B49' }); };
+    const cancelEdit = ()=>{ setEditingId(null); setForm({ title:'', surface:'', bottom:'', type:'\u672C\u683C', difficulty:'\u4E2D\u7B49' }); };
+    const saveEdit = async ()=>{ if(!form.title.trim()){ showMessage('\u8BF7\u586B\u5199\u6807\u9898','error'); return;} if(!form.surface.trim()){ showMessage('\u8BF7\u586B\u5199\u6C64\u9762\uFF08\u4EC5\u6587\u5B57\uFF09','error'); return;} if(!form.bottom.trim()){ showMessage('\u8BF7\u586B\u5199\u6C64\u5E95\uFF08\u4EC5\u6587\u5B57\uFF09','error'); return;} const { error } = await SupabaseUtil.updateRiddle(editingId,{ title:form.title.trim(), surface:form.surface.trim(), bottom:form.bottom.trim(), type:form.type, difficulty:form.difficulty }); if(error){ showMessage('\u4FDD\u5B58\u5931\u8D25\uFF08\u4E91\u7AEF\uFF09','error'); return;} showMessage('\u4FDD\u5B58\u6210\u529F','success'); setEditingId(null); await refresh(); };
+    const deleteOne = async (id)=>{ if(!confirm('\u786E\u5B9A\u5220\u9664\u8BE5\u9898\u76EE\u5417\uFF1F\u5220\u9664\u540E\u4E0D\u53EF\u6062\u590D')) return; const { error } = await SupabaseUtil.deleteRiddle(id); if(error){ showMessage('\u5220\u9664\u5931\u8D25\uFF08\u4E91\u7AEF\uFF09','error'); return;} showMessage('\u5DF2\u5220\u9664','success'); await refresh(); };
 
-    const buildText = (r)=>{ const parts=[]; if(r.surface?.trim()) parts.push(r.surface.trim()); if(r.title?.trim()) parts.push(`棰樼洰锛?{r.title.trim()}`); if(r.type) parts.push(`绫诲瀷锛?{r.type}`); if(r.difficulty) parts.push(`闅惧害锛?{r.difficulty}`); return parts.join(' \n ') || '绁炵鏁呬簨灏侀潰'; };
-    const sleep = (ms)=>new Promise(res=>setTimeout(res,ms));
-    const generateCoverFor = async (r)=>{ setGeneratingId(r.id); try{ const input=buildText(r); let url=''; for(let i=0;i<2 && !url;i++){ url=await ImageGenerator.generateCoverImage(input); if(!url) await sleep(400);} if(!url){ showMessage('鐢熸垚澶辫触锛岃绋嶅悗閲嶈瘯','error'); return;} if(isCloud){ const { error } = await SupabaseUtil.updateRiddle(r.id,{ cover_image:url }); if(error){ showMessage('淇濆瓨灏侀潰澶辫触锛堜簯绔級','error'); return;} } else { const ok = StorageUtil.updateRiddle(r.id,{ coverImage:url }); if(!ok){ showMessage('淇濆瓨灏侀潰澶辫触锛堟湰鍦帮級','error'); return;} } setRiddles(prev=>prev.map(it=>it.id===r.id?{...it,coverImage:url}:it)); showMessage('灏侀潰宸茬敓鎴?,'success'); } finally { setGeneratingId(''); } };
-    const generateMissingCovers = async()=>{ let all=[]; if(isCloud){ const { data, error } = await SupabaseUtil.fetchRiddles(); if(error){ showMessage('璇诲彇浜戠澶辫触锛屾棤娉曠敓鎴?,'error'); return;} all=mapCloud(data||[]);} else { all=StorageUtil.getRiddles()||[]; } const targets=all.filter(r=>!r.coverImage||String(r.coverImage).trim()===''); if(targets.length===0){ showMessage('娌℃湁闇€瑕佽ˉ鍏呭皝闈㈢殑棰樼洰','info'); return;} if(!confirm(`灏嗕负 ${targets.length} 鏉￠鐩敓鎴愬皝闈紝鍙兘闇€瑕佽緝闀挎椂闂达紝鏄惁缁х画锛焋)) return; setIsBulkGenerating(true); let okCount=0, failCount=0; for(const r of targets){ const input=buildText(r); let url=''; for(let i=0;i<2 && !url;i++){ url=await ImageGenerator.generateCoverImage(input); if(!url) await sleep(200);} if(!url){ failCount++; continue;} if(isCloud){ const { error } = await SupabaseUtil.updateRiddle(r.id,{ cover_image:url }); if(error){ failCount++; continue;} } else { const ok = StorageUtil.updateRiddle(r.id,{ coverImage:url }); if(!ok){ failCount++; continue;} } okCount++; setRiddles(prev=>prev.map(it=>it.id===r.id?{...it,coverImage:url}:it)); await sleep(120); } setIsBulkGenerating(false); showMessage(`鎵归噺鐢熸垚瀹屾垚锛氭垚鍔?${okCount} 鏉★紝澶辫触 ${failCount} 鏉, failCount?'info':'success'); };
+    const uploadIfDataUrl = async (maybeDataUrl)=>{ if(maybeDataUrl && typeof maybeDataUrl==='string' && maybeDataUrl.startsWith('data:')){ try{ const { url } = await SupabaseUtil.uploadImage(maybeDataUrl,'cover'); return url||''; }catch{ return ''; } } return maybeDataUrl||''; };
+    const generateCoverFor = async (r)=>{ setGeneratingId(r.id); try{ const text = r.surface?.trim() || `\u9898\u76EE\uFF1A${r.title}`; let cover = await ImageGenerator.generateCoverImage(text); let coverUrl = await uploadIfDataUrl(cover); if(!coverUrl){ showMessage('\u751F\u6210\u5931\u8D25','error'); return;} const { error } = await SupabaseUtil.updateRiddle(r.id,{ cover_image: coverUrl }); if(error){ showMessage('\u4FDD\u5B58\u5C01\u9762\u5931\u8D25','error'); return;} setRiddles(prev=>prev.map(it=>it.id===r.id?{...it,coverImage:coverUrl}:it)); showMessage('\u5C01\u9762\u5DF2\u751F\u6210','success'); } finally { setGeneratingId(''); } };
+    const generateMissingCovers = async ()=>{ setIsBulk(true); try{ const { data, error } = await SupabaseUtil.fetchRiddles(); if(error){ showMessage('\u8BFB\u53D6\u4E91\u7AEF\u5931\u8D25','error'); return; } const list=(data||[]).filter(r=>!r.cover_image || String(r.cover_image).trim()===''); let ok=0,fail=0; for(const r of list){ const text=r.surface?.trim()||`\u9898\u76EE\uFF1A${r.title}`; let cover=await ImageGenerator.generateCoverImage(text); let coverUrl=await uploadIfDataUrl(cover); if(!coverUrl){ fail++; continue;} const { error:err } = await SupabaseUtil.updateRiddle(r.id,{ cover_image: coverUrl }); if(err){ fail++; continue;} ok++; } showMessage(`\u6279\u91CF\u751F\u6210\u5B8C\u6210\uFF1A\u6210\u529F ${ok} \u6761\uFF0C\u5931\u8D25 ${fail} \u6761`, fail?'info':'success'); await refresh(); } finally { setIsBulk(false); } };
 
     return (
       <div className="min-h-screen bg-[var(--background-dark)]" data-name="manage" data-file="manage-app.js">
@@ -74,22 +65,18 @@ function ManageRiddles() {
         <div className="container mx-auto px-4 py-8">
           <div className="max-w-6xl mx-auto">
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
-              <h1 className="text-3xl font-bold text-[var(--text-primary)]">棰樺簱绠＄悊 {isCloud ? <span className="text-sm ml-2 text-[var(--text-secondary)]">(浜戠)</span> : <span className="text-sm ml-2 text-[var(--text-secondary)]">(鏈湴)</span>}</h1>
+              <h1 className="text-3xl font-bold text-[var(--text-primary)]">\u9898\u5E93\u7BA1\u7406</h1>
               <div className="flex gap-3 w-full md:w-auto">
-                <input className="form-input flex-1 md:w-80" placeholder="鎼滅储鏍囬 / 绫诲瀷 / 闅惧害..." value={search} onChange={(e)=>setSearch(e.target.value)} />
-                <a href="/add-riddle" className="btn-primary whitespace-nowrap">鏂板缓棰樼洰</a>
-                <button className="btn-secondary whitespace-nowrap" onClick={generateMissingCovers} disabled={isLoading || isBulkGenerating}>{isBulkGenerating ? '鐢熸垚涓?..' : '鐢熸垚缂哄け灏侀潰'}</button>
+                <input className="form-input flex-1 md:w-80" placeholder="\u641C\u7D22\u6807\u9898 / \u7C7B\u578B / \u96BE\u5EA6..." value={search} onChange={(e)=>setSearch(e.target.value)} />
+                <a href="/add-riddle" className="btn-primary whitespace-nowrap">\u65B0\u5EFA\u9898\u76EE</a>
+                <button className="btn-secondary whitespace-nowrap" onClick={generateMissingCovers} disabled={isBulk}>{isBulk?'\u751F\u6210\u4E2D...':'\u751F\u6210\u7F3A\u5931\u5C01\u9762'}</button>
               </div>
             </div>
 
-            {message && (
-              <div className={`mb-4 p-3 rounded-lg ${messageType==='success'?'bg-green-600':messageType==='error'?'bg-red-600':'bg-blue-600'} text-white`}>
-                {message}
-              </div>
-            )}
+            {message && (<div className={`mb-4 p-3 rounded-lg ${messageType==='success'?'bg-green-600':messageType==='error'?'bg-red-600':'bg-blue-600'} text-white`}>{message}</div>)}
 
             {isLoading ? (
-              <Loading text="鍔犺浇涓?.." />
+              <Loading text="\u52A0\u8F7D\u4E2D..." />
             ) : (
               <div className="space-y-4">
                 {filtered.map(r => (
@@ -98,39 +85,39 @@ function ManageRiddles() {
                       <div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div>
-                            <label className="block text-sm text-[var(--text-secondary)] mb-1">鏍囬</label>
+                            <label className="block text-sm text-[var(--text-secondary)] mb-1">\u6807\u9898</label>
                             <input className="form-input" value={form.title} onChange={(e)=>setForm({...form, title: e.target.value})} />
                           </div>
                           <div className="grid grid-cols-2 gap-4">
                             <div>
-                              <label className="block text-sm text-[var(--text-secondary)] mb-1">绫诲瀷</label>
+                              <label className="block text-sm text-[var(--text-secondary)] mb-1">\u7C7B\u578B</label>
                               <select className="form-select" value={form.type} onChange={(e)=>setForm({...form, type: e.target.value})}>
-                                <option value="鏈牸">鏈牸</option>
-                                <option value="鍙樻牸">鍙樻牸</option>
-                                <option value="鍒涙剰">鍒涙剰</option>
+                                <option value="\u672C\u683C">\u672C\u683C</option>
+                                <option value="\u53D8\u683C">\u53D8\u683C</option>
+                                <option value="\u521B\u610F">\u521B\u610F</option>
                               </select>
                             </div>
                             <div>
-                              <label className="block text-sm text-[var(--text-secondary)] mb-1">闅惧害</label>
+                              <label className="block text-sm text-[var(--text-secondary)] mb-1">\u96BE\u5EA6</label>
                               <select className="form-select" value={form.difficulty} onChange={(e)=>setForm({...form, difficulty: e.target.value})}>
-                                <option value="绠€鍗?>绠€鍗?/option>
-                                <option value="涓瓑">涓瓑</option>
-                                <option value="鍥伴毦">鍥伴毦</option>
+                                <option value="\u7B80\u5355">\u7B80\u5355</option>
+                                <option value="\u4E2D\u7B49">\u4E2D\u7B49</option>
+                                <option value="\u56F0\u96BE">\u56F0\u96BE</option>
                               </select>
                             </div>
                           </div>
                           <div className="md:col-span-2">
-                            <label className="block text-sm text-[var(--text-secondary)] mb-1">姹ら潰</label>
+                            <label className="block text-sm text-[var(--text-secondary)] mb-1">\u6C64\u9762</label>
                             <textarea className="form-textarea" value={form.surface} onChange={(e)=>setForm({...form, surface: e.target.value})} />
                           </div>
                           <div className="md:col-span-2">
-                            <label className="block text-sm text-[var(--text-secondary)] mb-1">姹ゅ簳</label>
+                            <label className="block text-sm text-[var(--text-secondary)] mb-1">\u6C64\u5E95</label>
                             <textarea className="form-textarea" value={form.bottom} onChange={(e)=>setForm({...form, bottom: e.target.value})} />
                           </div>
                         </div>
                         <div className="mt-4 flex gap-3">
-                          <button className="btn-primary" onClick={saveEdit}>淇濆瓨</button>
-                          <button className="btn-secondary" onClick={cancelEdit}>鍙栨秷</button>
+                          <button className="btn-primary" onClick={saveEdit}>\u4FDD\u5B58</button>
+                          <button className="btn-secondary" onClick={cancelEdit}>\u53D6\u6D88</button>
                         </div>
                       </div>
                     ) : (
@@ -141,20 +128,20 @@ function ManageRiddles() {
                             <span className="tag">{r.type}</span>
                             <span className="tag-difficulty">{r.difficulty}</span>
                           </div>
-                          <div className="text-xs text-[var(--text-secondary)]">ID: {r.id} 路 鏈€杩戞洿鏂帮細{r.updatedAt ? new Date(r.updatedAt).toLocaleString() : '-'}</div>
+                          <div className="text-xs text-[var(--text-secondary)]">ID: {r.id} · \u6700\u8FD1\u66F4\u65B0\uFF1A{r.updatedAt ? new Date(r.updatedAt).toLocaleString() : '-'}</div>
                         </div>
                         <div className="flex gap-2">
-                          <a href={`/riddle?id=${r.id}`} className="btn-secondary">鏌ョ湅</a>
-                          <button className="btn-secondary" onClick={()=>startEdit(r)}>缂栬緫</button>
-                          <button className="btn-secondary" onClick={()=>generateCoverFor(r)} disabled={generatingId===r.id}>{generatingId===r.id ? '鐢熸垚涓?..' : '鐢熸垚灏侀潰'}</button>
-                          <button className="btn-secondary" onClick={()=>deleteOne(r.id)}>鍒犻櫎</button>
+                          <a href={`/riddle?id=${r.id}`} className="btn-secondary">\u67E5\u770B</a>
+                          <button className="btn-secondary" onClick={()=>startEdit(r)}>\u7F16\u8F91</button>
+                          <button className="btn-secondary" onClick={()=>generateCoverFor(r)} disabled={generatingId===r.id}>{generatingId===r.id ? '\u751F\u6210\u4E2D...' : '\u751F\u6210\u5C01\u9762'}</button>
+                          <button className="btn-secondary" onClick={()=>deleteOne(r.id)}>\u5220\u9664</button>
                         </div>
                       </div>
                     )}
                   </div>
                 ))}
                 {filtered.length === 0 && (
-                  <div className="card-dark p-8 text-center text-[var(--text-secondary)]">鏆傛棤鏁版嵁锛岀偣鍑诲彸涓婅鈥滄柊寤洪鐩€濇坊鍔?/div>
+                  <div className="card-dark p-8 text-center text-[var(--text-secondary)]">\u6682\u65E0\u6570\u636E\uFF0C\u70B9\u51FB\u53F3\u4E0A\u89D2\u201C\u65B0\u5EFA\u9898\u76EE\u201D\u6DFB\u52A0</div>
                 )}
               </div>
             )}
@@ -172,5 +159,4 @@ root.render(
     <ManageRiddles />
   </ErrorBoundary>
 );
-
 
