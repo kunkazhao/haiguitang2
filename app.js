@@ -28,50 +28,40 @@
     const [selectedDifficulties, setSelectedDifficulties] = React.useState([]);
 
     React.useEffect(() => {
-      (async () => {
-        setIsLoading(true);
-        // 浼樺厛璇诲彇浜戠
-        if (window.SupabaseUtil && SupabaseUtil.isConfigured()) {
-          try {
-            const { data, error } = await SupabaseUtil.fetchRiddles();
-            if (!error && Array.isArray(data) && data.length > 0) {
-              // 灏嗗瓧娈垫槧灏勪负鍓嶇灞曠ず缁撴瀯锛堜繚鎸佺粍浠跺吋瀹癸級
-              const mapped = data.map(r => ({
-                id: r.id,
-                title: r.title,
-                surface: r.surface || '',
-                bottom: r.bottom || '',
-                type: r.type || '鏈牸',
-                difficulty: r.difficulty || '涓瓑',
-                surfaceImage: r.surface_image || '',
-                bottomImage: r.bottom_image || '',
-                coverImage: r.cover_image || '',
-                updatedAt: r.created_at || new Date().toISOString()
-              }));
-              // 鎸夋椂闂村€掑簭锛屾渶鏂板湪鍓?              mapped.sort((a,b) => new Date(b.updatedAt) - new Date(a.updatedAt));
-              setRiddles(mapped);
-              setIsLoading(false);
-              return;
-            }
-          } catch (e) {
-            console.warn('璇诲彇浜戠澶辫触锛屽洖閫€鍒版湰鍦帮細', e);
-          }
-        }
-
-        // 鏈湴鍥為€€锛歭ocalStorage 娌℃湁鍒欑敤鏍蜂緥鏁版嵁
-        const stored = StorageUtil.getRiddles();
-        if (stored.length === 0) {
-          const initialData = getSampleRiddles();
-          const sorted = [...initialData].sort((a,b) => new Date(b.updatedAt) - new Date(a.updatedAt));
-          StorageUtil.saveRiddles(sorted);
-          setRiddles(sorted);
+  (async () => {
+    setIsLoading(true);
+    if (window.SupabaseUtil && SupabaseUtil.isConfigured()) {
+      try {
+        const { data, error } = await SupabaseUtil.fetchRiddles();
+        if (!error && Array.isArray(data)) {
+          const mapped = data.map(r => ({
+            id: r.id,
+            title: r.title,
+            surface: r.surface || '',
+            bottom: r.bottom || '',
+            type: r.type || '本格',
+            difficulty: r.difficulty || '中等',
+            surfaceImage: r.surface_image || '',
+            bottomImage: r.bottom_image || '',
+            coverImage: r.cover_image || '',
+            updatedAt: r.created_at || new Date().toISOString()
+          }));
+          mapped.sort((a,b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+          setRiddles(mapped);
         } else {
-          const sorted = [...stored].sort((a,b) => new Date(b.updatedAt || 0) - new Date(a.updatedAt || 0));
-          setRiddles(sorted);
+          setRiddles([]);
         }
-        setIsLoading(false);
-      })();
-    }, []);
+      } catch (e) {
+        console.warn('云端读取失败：', e);
+        setRiddles([]);
+      }
+    } else {
+      console.warn('未检测到 Supabase 配置，首页将显示空列表');
+      setRiddles([]);
+    }
+    setIsLoading(false);
+  })();
+}, []);;
 
     const filteredRiddles = React.useMemo(() => {
       return riddles.filter(riddle => {
@@ -131,6 +121,7 @@ root.render(
     <App />
   </ErrorBoundary>
 );
+
 
 
 
