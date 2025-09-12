@@ -16,7 +16,8 @@ window.ENV = {
   // Example (in browser console):
   //   localStorage.setItem('ENV_SILICONFLOW_API_KEY','sk-...')
   //   localStorage.setItem('ENV_SILICONFLOW_PROXY_URL','https://api.siliconflow.cn')
-  SILICONFLOW_API_KEY: 'sk-wxfsotjcavldkdcgavgjjswbfzuilfrxzazleqxujjkytevx',
+  // 留空，避免在前端源码中泄露私钥；请通过 localStorage 或环境变量提供
+  SILICONFLOW_API_KEY: '',
   SILICONFLOW_PROXY_URL: 'https://api.siliconflow.cn'
 };
 

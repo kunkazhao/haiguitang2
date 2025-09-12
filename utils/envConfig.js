@@ -5,8 +5,9 @@ const EnvConfig = {
     // 在生产环境中，这些值应该通过构建工具注入
     // 在开发环境中，我们提供默认值
     return {
-      SILICONFLOW_API_KEY: this.getEnvVar('SILICONFLOW_API_KEY', 'sk-wxfsotjcavldkdcgavgjjswbfzuilfrxzazleqxujjkytevx'),
-      SILICONFLOW_PROXY_URL: this.getEnvVar('SILICONFLOW_PROXY_URL', 'https://proxy-api.trickle-app.host/?url=https://api.siliconflow.cn'),
+      // 默认不提供私钥，避免泄露；请通过环境变量或 localStorage 注入
+      SILICONFLOW_API_KEY: this.getEnvVar('SILICONFLOW_API_KEY', ''),
+      SILICONFLOW_PROXY_URL: this.getEnvVar('SILICONFLOW_PROXY_URL', 'https://api.siliconflow.cn'),
       // Supabase（仅前端 anon key）
       SUPABASE_URL: this.getEnvVar('SUPABASE_URL', ''),
       SUPABASE_ANON_KEY: this.getEnvVar('SUPABASE_ANON_KEY', ''),
